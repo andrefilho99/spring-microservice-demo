@@ -1,0 +1,38 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: API-GATEWAY
+  config:
+    import: configserver:http://localhost:8888
+  cloud:
+    gateway:
+      routes:
+        - id : TICKET-SERVICE
+          uri: lb://TICKET-SERVICE
+          predicates:
+            - Path=/ticket-orders/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: TICKER-SERVICE
+                fallbackuri: forward:/ticket-service-fallback
+        - id: MOVIE-SERVICE
+          uri: lb://MOVIE-SERVICE
+          predicates:
+            - Path=/movies/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: MOVIE-SERVICE
+                fallbackuri: forward:/movie-service-fallback
+        - id: PAYMENT-SERVICE
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/payments/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: PAYMENT-SERVICE
+                fallbackuri: forward:/payment-service-fallback
